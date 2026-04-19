@@ -7,7 +7,13 @@ use App\Http\Controllers\Profile_controller;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\SchoolRatingController;
-
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\GovernorateController;
+use App\Http\Controllers\StageController;
+use App\Http\Controllers\SchoolTypeController;
+use App\Http\Controllers\Inspector_Controller;
+use App\Http\Controllers\RatingCriteriaController;
+use App\Http\Controllers\SchoolRatinginspectorController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -36,6 +42,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/profile',[Profile_controller::class, 'store']);
    Route::post('/update',[Profile_controller::class,'update']);
 });
+
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::get('/show/{id}', [Profile_controller::class, 'show']);
     Route::get('/show_all', [Profile_controller::class, 'show_all']);
@@ -87,3 +94,74 @@ Route::get('/qr/{token}', function($token){
 });
 
 Route::get('/search', [SchoolController::class, 'search']);
+
+
+Route::middleware('auth:sanctum')->get('/governorates', [GovernorateController::class, 'index']);
+Route::middleware('auth:sanctum')->get('/governorates/{id}', [GovernorateController::class, 'show']);
+
+Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+Route::post('/governorates', [GovernorateController::class, 'store']);
+Route::put('/governorates/{id}', [GovernorateController::class, 'update']);
+Route::delete('/governorates/{id}', [GovernorateController::class, 'destroy']);
+
+});
+Route::middleware('auth:sanctum')->get('/stages', [StageController::class, 'index']);
+
+Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+Route::post('/stages', [StageController::class, 'storeStage']);
+Route::post('/stage-types', [StageController::class, 'storeType']);
+
+Route::delete('/stages/{id}', [StageController::class, 'deleteStage']);
+Route::delete('/stage-types/{id}', [StageController::class, 'deleteType']);
+});
+
+
+    Route::middleware('auth:sanctum')->get('/school-types', [SchoolTypeController::class, 'index']); 
+     Route::middleware('auth:sanctum')->get('/school-types/{id}', [SchoolTypeController::class, 'show']);  
+   
+     Route::middleware(['auth:sanctum', 'admin'])->group(function () {   
+    Route::post('/school-types', [SchoolTypeController::class, 'store']);   
+    Route::put('/school-types/{id}', [SchoolTypeController::class, 'update']);
+    Route::delete('/school-types/{id}', [SchoolTypeController::class, 'destroy']);
+    });
+
+
+
+
+    Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+    Route::get('/inspectors',        [Inspector_Controller::class, 'index']);
+    Route::post('/inspectors',       [Inspector_Controller::class, 'store']);
+    Route::get('/inspectors/{id}',    [Inspector_Controller::class, 'show']);
+    Route::post('/inspectors/{id}',   [Inspector_Controller::class, 'update']);
+    Route::delete('/inspectors/{id}', [Inspector_Controller::class, 'destroy']);
+});
+
+
+
+
+Route::middleware('auth:sanctum')->get('/rating-criteria', [RatingCriteriaController::class, 'index']);
+Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+
+
+    Route::get('/rating-criteria', [RatingCriteriaController::class, 'index']);
+    Route::post('/rating-criteria',[RatingCriteriaController::class, 'store']);
+    Route::put('/rating-criteria/{id}',[RatingCriteriaController::class, 'update']);
+    Route::delete('/rating-criteria/{id}', [RatingCriteriaController::class, 'destroy']);
+
+    Route::get('/school-ratings',[SchoolRatinginspectorController::class, 'index']);
+    Route::get('/school-ratings/{id}',[SchoolRatinginspectorController::class, 'show']);
+    Route::delete('/school-ratings/{id}',[SchoolRatinginspectorController::class, 'destroy']);
+});
+
+Route::middleware(['auth:sanctum'])->group(function () {
+
+   
+    Route::get('/rating-criteria',[RatingCriteriaController::class, 'index']);
+
+    
+    Route::post('/school-ratings',[SchoolRatinginspectorController::class, 'store']);
+    Route::put('/school-ratings/{id}',[SchoolRatinginspectorController::class, 'update']);
+
+  
+    Route::get('/my-ratings',[SchoolRatinginspectorController::class, 'myRatings']);
+});

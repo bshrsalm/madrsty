@@ -17,16 +17,13 @@ public function indexForComparison(Request $request)
 {
     $user = $request->user();
     
-    // للـ Manager: نرجع كل المدارس ما عدا مدرسته (لأنه سيقارن مدرسته بمدرسة أخرى)
+ 
     if ($user->role === 'Manager') {
-        $schools = School::with('manager')
-                        ->where('id', '!=', $user->school_id)
-                        ->latest()
-                        ->get();
+        $schools = School::with(['manager','schoolType']) ->where('id', '!=', $user->school_id) ->latest() ->get();
         return response()->json($schools);
     }
     
-    // للـ Admin والـ User: نرجع كل المدارس
+    
     if (in_array($user->role, ['Admin', 'user'])) {
         $schools = School::with('manager')->latest()->get();
         return response()->json($schools);
@@ -40,7 +37,7 @@ public function indexForComparison(Request $request)
 
 
     if ($user->role === 'Admin') {
-        $schools = School::with('manager')->latest()->get();
+        $schools = School::with(['manager','schoolType'])->latest()->get();
         return response()->json($schools);
     }
 
@@ -60,6 +57,10 @@ if ($user->role === 'user') {
             $schools = School::with('manager')->latest()->get();
             return response()->json($schools);
         }
+           if ($user->role === 'inspector') {
+        $schools = School::with('manager')->latest()->get();
+        return response()->json($schools);
+    }
   
     return response()->json(['message' => 'Unauthorized'], 403);
 }
@@ -95,26 +96,31 @@ public function search(Request $request)
 
 public function show(School $school)
 {
-   return response()->json([
-    'id' => $school->id,
-    'name' => $school->name,
-    'student_gender' => $school->student_gender, 
-    'address' => $school->address,
-    'phone' => $school->phone,
-    'registration_fee' => $school->registration_fee,
-    'tuition' => $school->tuition,
-    'description' => $school->description,
-    'website' => $school->website,
-    'instagram' => $school->instagram,
-    'facebook' => $school->facebook,
-    'google_map' => $school->google_map,
-    'manager' => $school->manager,
-    'barcode_image' => $school->barcode_image,
-]);
+    
+    $school->load(['manager', 'governorate', 'educationalStage', 'stageType', 'schoolType']);
 
+    return response()->json([
+        'id'                => $school->id,
+        'name'              => $school->name,
+        'student_gender'    => $school->student_gender,
+        'address'           => $school->address,
+        'phone'             => $school->phone,
+        'registration_fee'  => $school->registration_fee,
+        'tuition'           => $school->tuition,
+        'description'       => $school->description,
+        'link_web'          => $school->link_web,
+        'instagram'         => $school->instagram,
+        'facebook'          => $school->facebook,
+        'google_map'        => $school->google_map,
+        'manager'           => $school->manager,
+        'barcode_image'     => $school->barcode_image,
+        'governorate'       => $school->governorate,
+        'educational_stage' => $school->educationalStage,
+        'stage_type'        => $school->stageType,
+        'type'              => $school->schoolType,
+        'created_at'        => $school->created_at, 
+    ]);
 }
-
-
 
 public function store(Request $request)
 {
@@ -133,6 +139,10 @@ public function store(Request $request)
         'facebook'  => 'nullable|string|max:255',
         'google_map' => 'nullable|string|max:255',
         'manager_id' => 'nullable|exists:users,id',
+            'governorate_id'       => 'sometimes|exists:governorates,id',
+        'educational_stage_id' => 'sometimes|exists:educational_stages,id',
+        'stage_type_id'        => 'sometimes|nullable|exists:stage_types,id',
+        'school_type_id' => 'nullable|exists:school_types,id',
     ]);
 
    
@@ -190,6 +200,10 @@ public function update(Request $request, School $school)
         'facebook'  => 'sometimes|nullable|string|max:255',
         'google_map' => 'sometimes|nullable|string|max:255',
         'manager_id' => 'sometimes|nullable|exists:users,id',
+        'governorate_id' => 'sometimes|exists:governorates,id',
+        'educational_stage_id' => 'sometimes|exists:educational_stages,id',
+        'stage_type_id' => 'sometimes|nullable|exists:stage_types,id',
+        'school_type_id' => 'sometimes|nullable|exists:school_types,id',
     ]);
 
 
@@ -284,6 +298,12 @@ public function compare(Request $request)
             'address' => $school1->address ?? 'غير محدد',
             'phone' => $school1->phone ?? 'غير محدد',
             'manager' => optional($school1->manager)->name ?? 'غير محدد',
+            'student_gender' => $school1->student_gender ?? 'غير محدد',
+            'description' => $school1->description ?? 'لا يوجد وصف',
+            'governorate' => optional($school1->governorate)->name ?? 'غير محدد',
+            'educational_stage' => optional($school1->educationalStage)->name ?? 'غير محدد',
+            'stage_type' => optional($school1->stageType)->name ?? 'غير محدد',
+            'school_type' => optional($school1->schoolType)->name ?? 'غير محدد',
         ],
         'school_2' => [
             'id' => $school2->id,
@@ -293,6 +313,12 @@ public function compare(Request $request)
             'address' => $school2->address ?? 'غير محدد',
             'phone' => $school2->phone ?? 'غير محدد',
             'manager' => optional($school2->manager)->name ?? 'غير محدد',
+            'student_gender' => $school1->student_gender ?? 'غير محدد',
+            'description' => $school1->description ?? 'لا يوجد وصف',
+            'governorate' => optional($school1->governorate)->name ?? 'غير محدد',
+            'educational_stage' => optional($school1->educationalStage)->name ?? 'غير محدد',
+            'stage_type' => optional($school1->stageType)->name ?? 'غير محدد',
+            'school_type' => optional($school1->schoolType)->name ?? 'غير محدد',
         ],
     ]);
 }

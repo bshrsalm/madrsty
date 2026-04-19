@@ -20,6 +20,10 @@ return new class extends Migration
     $table->string('facebook')->nullable();
     $table->string('instagram')->nullable();
     $table->string('link_web')->nullable();
+    $table->foreignId('governorate_id')->constrained()->cascadeOnDelete(); 
+    $table->foreignId('educational_stage_id') ->constrained() ->cascadeOnDelete(); 
+    $table->foreignId('stage_type_id') ->nullable() ->constrained()->nullOnDelete();
+     $table->foreignId('school_type_id') ->nullable()->constrained() ->nullOnDelete();
   
     $table->timestamps();
 });

@@ -63,4 +63,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(SchoolRating::class);
     }
+    public function inspector()
+{
+    return $this->hasOne(\App\Models\Inspector::class, 'user_id');
+}
 }

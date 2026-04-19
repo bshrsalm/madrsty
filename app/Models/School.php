@@ -24,6 +24,10 @@ class School extends Model
         'manager_id',
         'barcode_token',
         'barcode_image',
+         'governorate_id',
+        'educational_stage_id',
+        'stage_type_id',
+        'school_type_id',
 
         
     ];
@@ -42,5 +46,21 @@ class School extends Model
     {
       return $this->belongsTo(User::class, 'manager_id');
     }
+public function governorate()
+{
+    return $this->belongsTo(Governorate::class);
+}
+  public function educationalStage()
+    {
+        return $this->belongsTo(EducationalStage::class, 'educational_stage_id');
+    }
 
+    public function stageType()
+    {
+        return $this->belongsTo(StageType::class, 'stage_type_id');
+    }
+    public function schoolType()
+    {
+        return $this->belongsTo(SchoolType::class, 'school_type_id');
+    }
 }
